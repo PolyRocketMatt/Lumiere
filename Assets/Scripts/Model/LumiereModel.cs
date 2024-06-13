@@ -1,5 +1,6 @@
 ﻿// ReSharper disable once CheckNamespace
-public class LumiereModel
+[System.Serializable]
+public struct LumiereModel
 {
     private readonly IGeometry _geometry;
     private readonly IMaterial _material;
