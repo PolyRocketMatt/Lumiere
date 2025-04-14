@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "input/Input.h"
 
 //
 // Adapted from Dear ImGui Vulkan example
@@ -395,6 +396,11 @@ void Application::Init() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	m_WindowHandle = glfwCreateWindow(m_Spec.width, m_Spec.height, m_Spec.name.c_str(), NULL, NULL);
 	
+	//	Scroll callback
+	glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow* window, double xOffset, double yOffset) {
+		Input::SetScrollDelta((float)xOffset, (float)yOffset);
+	});
+
 	//	Setup Vulkan
 	if (!glfwVulkanSupported()) {
 		std::cerr << "[glfw] Vulkan is not supported!\n";

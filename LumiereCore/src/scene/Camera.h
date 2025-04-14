@@ -34,6 +34,17 @@ struct CameraMetadata {
 	bool		s_ContinuousRender;
 };
 
+struct OrbitCameraMetadata : public CameraMetadata {
+	glm::vec3	s_Target;
+	float		s_Distance;
+	float		s_Pitch;
+	float		s_Yaw;
+
+	float		s_RotationSpeed;
+	float		s_ZoomSpeed;
+	float		s_PanSpeed;
+};
+
 class BaseCamera {
 public:
 	BaseCamera(const CameraMetadata& metaData);
@@ -57,7 +68,7 @@ private:
 	void RecalculateView();
 	void RecalculateRayDirections();
 	
-private:
+protected:
 	glm::mat4				m_Projection{ 1.0f };
 	glm::mat4				m_View{ 1.0f };
 	glm::mat4				m_InverseProjection{ 1.0f };
@@ -79,6 +90,33 @@ private:
 
 	//	Cached ray directions
 	std::vector<glm::vec3>	m_RayDirections;
+};
+
+class OrbitCamera : public BaseCamera {
+public:
+	OrbitCamera(const OrbitCameraMetadata& metaData);
+	
+	bool OnUpdate(float timeStep) override;
+
+	void Rotate(const glm::vec2& delta);
+	void Zoom(float delta);
+	void Pan(const glm::vec2& delta);
+
+private:
+	glm::vec3				m_Target;
+	float					m_Distance = 10.0f;
+	float					m_Pitch = 0.0f;
+	float					m_Yaw = 0.0f;
+
+	float					m_RotationSpeed;
+	float					m_ZoomSpeed;
+	float					m_PanSpeed;
+
+	glm::vec2				m_LastMousePosition{ 0.0f, 0.0f };
+};
+
+class FirstPersonCamera : public BaseCamera {
+	
 };
 
 }
