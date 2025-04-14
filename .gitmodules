@@ -1,0 +1,9 @@
+[submodule "Vendor/imgui"]
+	path = Vendor/imgui
+	url = https://github.com/PolyRocketMatt/imgui.git
+[submodule "Vendor/glm"]
+	path = Vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Vendor/glfw"]
+	path = Vendor/glfw
+	url = https://github.com/PolyRocketMatt/glfw.git
