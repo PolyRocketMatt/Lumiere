@@ -35,3 +35,18 @@ cd .\Lumiere\Scripts
 Currently, Lumiere is **only supported on Windows**. Support for Linux/MacOS will be added in the future.
 
 ### Development Blog
+
+The development of Lumiere can be followed [here](https://www.matthias-kovacic.dev/lumiere).
+
+### Citing
+
+If you have used this codebase in a publication and wish to cite it, consider the following:
+
+```bibtex
+@misc{kovacic2025,
+  title   = {Lumiere: Multi-paradigm Render Engine},
+  author  = {Matthias Kovacic},
+  url     = {https://github.com/PolyRocketMatt/Lumiere},
+  year    = {2025}
+}
+```
