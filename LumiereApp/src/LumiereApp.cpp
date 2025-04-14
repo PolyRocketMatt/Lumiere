@@ -1,5 +1,5 @@
-#include "Core/Application.h"
-#include "Core/EntryPoint.h"
+#include "app/Application.h"
+#include "app/EntryPoint.h"
 
 class BaseLayer : public Lumiere::Layer {
 public:

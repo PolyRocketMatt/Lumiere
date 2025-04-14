@@ -17,7 +17,7 @@
 #include <iostream>
 
 // Emedded font
-#include "Roboto-Regular.embed"
+#include "imgui/Roboto-Regular.embed"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -547,6 +547,9 @@ void Application::Run() {
 			}
 		}
 
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 		// Start the Dear ImGui frame
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -581,13 +584,12 @@ void Application::Run() {
 			// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 			// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			ImGui::Begin("DockSpace Demo", nullptr, windowFlags);
+			ImGui::Begin("DockSpace", nullptr, windowFlags);
 			ImGui::PopStyleVar();
 
 			ImGui::PopStyleVar(2);
 
 			// Submit the DockSpace
-			ImGuiIO& io = ImGui::GetIO();
 			if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
 				ImGuiID dockspace_id = ImGui::GetID("VulkanAppDockspace");
 				ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspaceFlags);

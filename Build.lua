@@ -10,7 +10,7 @@ workspace "Lumiere"
 
 outputdir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
-include "LumiereVendor.lua"
+include "Vendor.lua"
 
 group "Core"
 	include "LumiereCore/LumiereCore.lua"
