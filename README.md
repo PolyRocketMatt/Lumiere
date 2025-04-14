@@ -1,24 +1,21 @@
-# C++ Project Starter Template
+![License](https://img.shields.io/badge/License-MIT-%2368AD63?style=for-the-badge)
+![C++](https://img.shields.io/badge/C++-17-%233e7fa8?logo=c++&style=for-the-badge)
 
-This is a little quick-start project template for C++ projects which utilise a Core/App project architecture. There are two included projects - one called _Core_, and one called _App_. [Premake](https://github.com/premake/premake-core) is used to generate project files.
+<p align="center">
+    <picture>
+        <source srcset="img/lumiere-256.png" media="(prefers-color-scheme: dark)">
+        <source srcset="img/lumiere-256.png" media="(prefers-color-scheme: light)">
+        <img width="128" height="128" src="img/lumiere-256.png" alt="Lumiere Logo" />
+    </picture>
+</p>
 
-Core builds into a static library and is meant to contain common code intended for use in multiple applications. App builds into an executable and links the Core static library, as well as provides an include path to Core's code.
+<h1 align="center">Lumiere</h1>
 
-The `Scripts/` directory contains build scripts for Windows and Linux, and the `Vendor/` directory contains Premake binaries (currently version `5.0-beta2`).
+**Lumiere** is a next-generation, production-ready path tracer engine that allows artists and developers to render scenes in 3D. Through the use of the Vulkan API, Lumiere (current roadmap) offers features unseen by other path tracing systems such as:
 
-## Getting Started
-1. Clone this repository or use the "Use this template" button on GitHub to quickly set up your own repository based on this template
-2. `App/` and `Core/` are the two projects - you can edit the names of these folders and their contents to suit
-3. The three included Premake build files are `Build.lua`, `Core/Build-Core.lua` and `App/Build-App.lua` - you can edit these to customise your build configurations, edit the names of your projects and workspace/solution, etc.
-4. Open the `Scripts/` directory and run the appropriate `Setup` script to generate projects files. You can edit the setup scripts to change the type of project that is generated - out of the box they are set to Visual Studio 2022 for Windows and gmake2 for Linux.
-
-Note that no macOS setup script is currently provided; you can duplicate the Linux script and adjust accordingly.
-
-## Included
-- Some example code (in `App/Source` and `Core/Source`) to provide a starting point and test
-- Simple `.gitignore` to ignore project files and binaries
-- Premake binaries for Win/Mac/Linux (`v5.0-beta2`)
-
-## License
-- UNLICENSE for this repository (see `UNLICENSE.txt` for more details)
-- Premake is licensed under BSD 3-Clause (see included LICENSE.txt file for more details)
+- **Light Transport Framework** that is pysically accurate through
+  - consistency with the physical properties of both light and materials,
+  - consistency with Maxwell's electromagnetic theory,
+  - consistency with general relativity.
+- Implementations of **various paradigms** (e.g. Blinn-Phong, MCMC-based methods, etc).
+- **Integration** with other 3D creation tools such as Blender or Cinema4D.
