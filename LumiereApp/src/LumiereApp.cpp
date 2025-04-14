@@ -1,15 +1,30 @@
 #include "app/Application.h"
 #include "app/EntryPoint.h"
+//#include "scene/Scene.h"
+#include "rendering/Renderer.h"
 
 class BaseLayer : public Lumiere::Layer {
 public:
 	virtual void OnUIRender() override {
 		ImGui::Begin("Inspector");
+		if (ImGui::Button("Render"))
+			OnRender();
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
 		ImGui::End();
 	}
+
+private:
+
+	void OnRender() {
+		m_Renderer.Render(m_Scene);
+	}
+
+private:
+	Lumiere::Scene				m_Scene;
+	Lumiere::Renderer			m_Renderer;
+	
 };
 
 Lumiere::Application* Lumiere::CreateApplication(int argc, char** argv) {
