@@ -1,6 +1,6 @@
 #include "app/Application.h"
 #include "app/EntryPoint.h"
-//#include "scene/Scene.h"
+
 #include "rendering/Renderer.h"
 
 class BaseLayer : public Lumiere::Layer {
