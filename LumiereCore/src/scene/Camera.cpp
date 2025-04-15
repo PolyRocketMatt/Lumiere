@@ -1,7 +1,9 @@
 #include "Camera.h"
 #include "input/Input.h"
 
-#include "glm/gtc/matrix_transform.hpp";
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 namespace Lumiere {
 
@@ -10,7 +12,8 @@ namespace Lumiere {
 //
 BaseCamera::BaseCamera(const CameraMetadata& metaData)
 	: m_Position(metaData.s_Position),
-	m_Direction(metaData.s_Direction),
+	m_ForwardDirection(metaData.s_ForwardDirection),
+	m_RightDirection(glm::cross(metaData.s_ForwardDirection, metaData.s_Up)),
 	m_Up(metaData.s_Up),
 	m_VerticalFov(metaData.s_VerticalFov),
 	m_NearClip(metaData.s_NearClip),
@@ -18,8 +21,7 @@ BaseCamera::BaseCamera(const CameraMetadata& metaData)
 	m_ImageWidth(metaData.s_ImageWidth),
 	m_ImageHeight(metaData.s_ImageHeight),
 	m_AspectRatio((float)m_ImageWidth / m_ImageHeight),
-	m_ContinuousRender(metaData.s_ContinuousRender) {
-}
+	m_ContinuousRender(metaData.s_ContinuousRender) { }
 
 void BaseCamera::OnResize(uint32_t width, uint32_t height) {
 	if (width == m_ImageWidth && height == m_ImageHeight)
@@ -38,7 +40,7 @@ void BaseCamera::RecalculateProjection() {
 }
 
 void BaseCamera::RecalculateView() {
-	m_View = glm::lookAt(m_Position, m_Position + m_Direction, glm::vec3(0, 1, 0));
+	m_View = glm::lookAt(m_Position, m_Position + m_ForwardDirection, glm::vec3(0, 1, 0));
 	m_InverseView = glm::inverse(m_View);
 }
 
@@ -73,14 +75,14 @@ OrbitCamera::OrbitCamera(const OrbitCameraMetadata& metaData)
 	m_Distance(metaData.s_Distance),
 	m_Pitch(metaData.s_Pitch),
 	m_Yaw(metaData.s_Yaw),
+	m_Sensitivity(metaData.s_Sensitivity),
 	m_RotationSpeed(metaData.s_RotationSpeed),
 	m_ZoomSpeed(metaData.s_ZoomSpeed),
-	m_PanSpeed(metaData.s_PanSpeed) {
-}
+	m_PanSpeed(metaData.s_PanSpeed) { }
 
 bool OrbitCamera::OnUpdate(float timeStep) {
 	glm::vec2 mousePos = Input::GetMousePosition();
-	glm::vec2 movementDelta = mousePos - m_LastMousePosition;
+	glm::vec2 movementDelta = (mousePos - m_LastMousePosition) * m_Sensitivity;
 	m_LastMousePosition = mousePos;
 
 	bool moved = false;
@@ -88,19 +90,20 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 	//	Movement
 	//	Pan
 	if (Input::IsMouseButtonDown(MouseButton::Middle) && Input::IsKeyDown(KeyCode::LeftShift)) {
-		Pan(movementDelta);
+		Pan(movementDelta, timeStep);
 		moved = true;
 	}
 	
 	//	Orbit
 	else if (Input::IsMouseButtonDown(MouseButton::Middle)) {
-		Rotate(movementDelta);
+		Rotate(movementDelta, timeStep);
 		moved = true;
 	}
 
+	//	Zoom
 	else if (Input::HasScrollDelta()) {
 		float scrollDelta = Input::GetMouseScrollDelta().y;
-		Zoom(scrollDelta);
+		Zoom(scrollDelta, timeStep);
 		moved = true;
 	}
 
@@ -116,27 +119,107 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 
 	//	Look at target
 	m_View = glm::lookAt(m_Position, m_Target, m_Up);
+
+	if (moved) {
+		RecalculateView();
+		RecalculateRayDirections();
+	}
+
+	return moved;
 }
 
-void OrbitCamera::Rotate(const glm::vec2& delta) {
-	m_Yaw += delta.x * m_RotationSpeed;
-	m_Pitch += delta.y * m_RotationSpeed;
+void OrbitCamera::Rotate(const glm::vec2& delta, float timeStep) {
+	m_Yaw += delta.x * m_RotationSpeed * timeStep;
+	m_Pitch += delta.y * m_RotationSpeed * timeStep;
 }
 
-void OrbitCamera::Zoom(float delta) {
-	m_Distance *= (1.0f + delta * m_ZoomSpeed);
+void OrbitCamera::Zoom(float delta, float timeStep) {
+	m_Distance *= (1.0f + delta * m_ZoomSpeed * timeStep);
 	m_Distance = glm::max(m_Distance, 0.1f);
 }
 
-void OrbitCamera::Pan(const glm::vec2& delta) {
+void OrbitCamera::Pan(const glm::vec2& delta, float timeStep) {
 	glm::vec3 rightDirection = glm::normalize(glm::cross(m_Target - m_Position, m_Up));
 	
-	m_Target += -rightDirection * delta.x * m_PanSpeed * m_Distance;
-	m_Target += m_Up * delta.y * m_PanSpeed * m_Distance;
+	m_Target += -rightDirection * delta.x * m_PanSpeed * m_Distance * timeStep;
+	m_Target += m_Up * delta.y * m_PanSpeed * m_Distance * timeStep;
 }
 
 //
 //	FirstPersonCamera
 //
+FirstPersonCamera::FirstPersonCamera(const FirstPersonCameraMetadata& metaData)
+	: BaseCamera(metaData),
+	m_Sensitivity(metaData.s_Sensitivity),
+	m_MovementSpeed(metaData.s_MovementSpeed),
+	m_RotationSpeed(metaData.s_RotationSpeed) { }
+
+bool FirstPersonCamera::OnUpdate(float timeStep) {
+	glm::vec2 mousePos = Input::GetMousePosition();
+	glm::vec2 movementDelta = (mousePos - m_LastMousePosition) * m_Sensitivity;
+	m_LastMousePosition = mousePos;
+
+	if (!Input::IsMouseButtonDown(MouseButton::Right)) {
+		Input::SetCursorMode(CursorMode::Normal);
+		return false;
+	}
+
+	Input::SetCursorMode(CursorMode::Locked);
+	bool moved = false;
+
+	//	Movement
+	//	Forward
+	if (Input::IsKeyDown(KeyCode::W)) {
+		m_Position += m_ForwardDirection * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	//	Backward
+	else if (Input::IsKeyDown(KeyCode::S)) {
+		m_Position -= m_ForwardDirection * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	//	Right
+	else if (Input::IsKeyDown(KeyCode::D)) {
+		m_Position += m_RightDirection * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	//	Left
+	else if (Input::IsKeyDown(KeyCode::A)) {
+		m_Position -= m_RightDirection * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	//	Up
+	else if (Input::IsKeyDown(KeyCode::E)) {
+		m_Position += m_Up * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	else if (Input::IsKeyDown(KeyCode::Q)) {
+		m_Position -= m_Up * m_MovementSpeed * timeStep;
+		moved = true;
+	}
+
+	//	Rotation
+	if (movementDelta.x != 0.0f || movementDelta.y != 0.0f) {
+		float pitchDelta = movementDelta.y * m_RotationSpeed;
+		float yawDelta = movementDelta.x * m_RotationSpeed;
+
+		glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, m_RightDirection),
+			glm::angleAxis(-yawDelta, m_Up)));
+		m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
+		moved = true;
+	}
+	
+	if (moved) {
+		RecalculateView();
+		RecalculateRayDirections();
+	}
+
+	return moved;
+}
 
 }

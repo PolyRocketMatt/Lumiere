@@ -9,7 +9,7 @@ namespace Lumiere {
 struct CameraMetadata {
 	//	--- Geometry & Optics ---
 	glm::vec3	s_Position;
-	glm::vec3	s_Direction;
+	glm::vec3	s_ForwardDirection;
 	glm::vec3	s_Up;
 
 	float		s_VerticalFov;		
@@ -40,9 +40,16 @@ struct OrbitCameraMetadata : public CameraMetadata {
 	float		s_Pitch;
 	float		s_Yaw;
 
+	float		s_Sensitivity;
 	float		s_RotationSpeed;
 	float		s_ZoomSpeed;
 	float		s_PanSpeed;
+};
+
+struct FirstPersonCameraMetadata : public CameraMetadata {
+	float		s_Sensitivity;
+	float		s_MovementSpeed;
+	float		s_RotationSpeed;
 };
 
 class BaseCamera {
@@ -59,11 +66,11 @@ public:
 	const glm::mat4& GetInverseView() const { return m_InverseView; }
 	
 	const glm::vec3 GetPosition() const { return m_Position; }
-	const glm::vec3 GetDirection() const { return m_Direction; }
+	const glm::vec3 GetForwardDirection() const { return m_ForwardDirection; }
 	const glm::vec3 GetUp() const { return m_Up; }
 
 	const std::vector<glm::vec3>& GetRayDirections() const { return m_RayDirections; }
-private:
+protected:
 	void RecalculateProjection();
 	void RecalculateView();
 	void RecalculateRayDirections();
@@ -75,7 +82,8 @@ protected:
 	glm::mat4				m_InverseView{ 1.0f };
 
 	glm::vec3				m_Position;
-	glm::vec3				m_Direction;
+	glm::vec3				m_ForwardDirection;
+	glm::vec3				m_RightDirection;
 	glm::vec3				m_Up;
 
 	float					m_VerticalFov;
@@ -98,9 +106,9 @@ public:
 	
 	bool OnUpdate(float timeStep) override;
 
-	void Rotate(const glm::vec2& delta);
-	void Zoom(float delta);
-	void Pan(const glm::vec2& delta);
+	void Rotate(const glm::vec2& delta, float timeStep);
+	void Zoom(float delta, float timeStep);
+	void Pan(const glm::vec2& delta, float timeStep);
 
 private:
 	glm::vec3				m_Target;
@@ -108,6 +116,7 @@ private:
 	float					m_Pitch = 0.0f;
 	float					m_Yaw = 0.0f;
 
+	float					m_Sensitivity;
 	float					m_RotationSpeed;
 	float					m_ZoomSpeed;
 	float					m_PanSpeed;
@@ -116,7 +125,16 @@ private:
 };
 
 class FirstPersonCamera : public BaseCamera {
-	
+	FirstPersonCamera(const FirstPersonCameraMetadata& metaData);;
+
+	bool OnUpdate(float timeStep) override;
+
+private:
+	float					m_Sensitivity;
+	float					m_MovementSpeed;
+	float					m_RotationSpeed;
+
+	glm::vec2				m_LastMousePosition{ 0.0f, 0.0f };
 };
 
 }
