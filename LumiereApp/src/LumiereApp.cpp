@@ -1,30 +1,72 @@
 #include "app/Application.h"
 #include "app/EntryPoint.h"
-
+#include "scene/Camera.h"
+#include "scene/Scene.h"
 #include "rendering/Renderer.h"
+
+#include "Timer.h"
+
+#include <optional>
 
 class BaseLayer : public Lumiere::Layer {
 public:
+	
+	virtual void OnAttach() override {
+		Lumiere::FirstPersonCameraMetadata md = {};
+
+		md.position = glm::vec3(0.0f, 0.0f, 3.0f);
+		md.forwardDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+		md.up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		md.verticalFov = 45.0f;
+		md.nearClip = 0.1f;
+		md.farClip = 100.0f;
+		
+		m_Camera = Lumiere::FirstPersonCamera(md);
+	}
+
 	virtual void OnUIRender() override {
 		ImGui::Begin("Inspector");
+		ImGui::Text("Render Time: %.3fms", m_LastRenderTime);
+		ImGui::Text("FPS: %.3f", 1000.0f / m_LastRenderTime);
 		if (ImGui::Button("Render"))
 			OnRender();
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
+		m_ViewportWidth = ImGui::GetContentRegionAvail().x;
+		m_ViewportHeight = ImGui::GetContentRegionAvail().y;
+
+		auto image = m_Renderer.GetFinalImage();
+		if (image)
+			ImGui::Image((ImTextureID) (uint64_t) image->GetDescriptorSet(), ImVec2{ (float)image->GetWidth(), (float)image->GetHeight() },
+				ImVec2(0, 1), ImVec2(1, 0));
+
 		ImGui::End();
+
+		OnRender();
 	}
 
 private:
 
 	void OnRender() {
-		m_Renderer.Render(m_Scene);
+		if (m_Camera.has_value()) {
+			Lumiere::Timer timer;
+			m_Camera.value().OnResize(m_ViewportWidth, m_ViewportHeight);
+			m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
+			m_Renderer.Render(m_Camera.value(), m_Scene);
+			m_LastRenderTime = timer.ElapsedMillis();
+		}
 	}
 
-private:
-	Lumiere::Scene				m_Scene;
-	Lumiere::Renderer			m_Renderer;
+protected:
+	std::optional<Lumiere::FirstPersonCamera>	m_Camera;
+	Lumiere::Scene								m_Scene;
+	Lumiere::Renderer							m_Renderer;
 	
+	uint32_t									m_ViewportWidth;
+	uint32_t									m_ViewportHeight;
+	float										m_LastRenderTime = 0.0f;
 };
 
 Lumiere::Application* Lumiere::CreateApplication(int argc, char** argv) {

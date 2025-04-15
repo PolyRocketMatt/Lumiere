@@ -22,19 +22,26 @@ BaseCamera::BaseCamera(const CameraMetadata& metaData)
 	m_AspectRatio((float)metaData.imageWidth / metaData.imageHeight),
 	m_ContinuousRender(metaData.continuousRender) { }
 
+bool BaseCamera::OnUpdate(float timeStep) {
+	return false;
+}
+
 void BaseCamera::OnResize(uint32_t width, uint32_t height) {
 	if (width == m_ImageWidth && height == m_ImageHeight)
 		return;
 
 	m_ImageWidth = width;
 	m_ImageHeight = height;
+	m_AspectRatio = (float)width / height;
 
 	RecalculateProjection();
 	RecalculateRayDirections();
 }
 
 void BaseCamera::RecalculateProjection() {
-	m_Projection = glm::perspectiveFov(glm::radians(m_VerticalFov), (float)m_ImageWidth, (float)m_ImageHeight, m_NearClip, m_FarClip);
+	float fov = glm::radians(m_VerticalFov);
+	m_Projection = glm::perspectiveFov(fov, (float)m_ImageWidth, (float)m_ImageHeight, m_NearClip, m_FarClip);
+	
 	m_InverseProjection = glm::inverse(m_Projection);
 }
 
@@ -52,9 +59,6 @@ void BaseCamera::RecalculateRayDirections() {
 
 			//	Map to UV [-1, 1]
 			coord = coord * 2.0f - 1.0f;
-
-			//	Aspect ratio
-			coord.x *= m_AspectRatio;
 
 			//	Calculate ray direction from origin in world space
 			glm::vec4 target = m_InverseProjection * glm::vec4(coord.x, coord.y, 1, 1);
