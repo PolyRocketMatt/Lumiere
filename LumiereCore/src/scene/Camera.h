@@ -131,6 +131,9 @@ public:
 	bool OnUpdate(float timeStep) override;
 
 private:
+	float					m_Pitch = 0.0f;
+	float					m_Yaw = 0.0f;
+
 	float					m_Sensitivity;
 	float					m_MovementSpeed;
 	float					m_RotationSpeed;

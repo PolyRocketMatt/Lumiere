@@ -55,7 +55,7 @@ void BaseCamera::RecalculateRayDirections() {
 			coord = coord * 2.0f - 1.0f;
 
 			//	Aspect ratio
-			coord *= m_AspectRatio;
+			coord.x *= m_AspectRatio;
 
 			//	Calculate ray direction from origin in world space
 			glm::vec4 target = m_InverseProjection * glm::vec4(coord.x, coord.y, 1, 1);
@@ -107,8 +107,9 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 		moved = true;
 	}
 
+	//	Clamp pitch to prevent flipping
 	constexpr float pitchLimit = glm::radians(89.0f);
-	m_Pitch = glm::clamp(m_Pitch, -m_Pitch, pitchLimit);
+	m_Pitch = glm::clamp(m_Pitch, -pitchLimit, pitchLimit);
 
 	//	Convert spherical coordinates to cartesian
 	m_Position = glm::vec3(
@@ -116,9 +117,6 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 		m_Target.y + m_Distance * std::sin(m_Pitch),
 		m_Target.z + m_Distance * std::cos(m_Pitch) * std::cos(m_Yaw)
 	);
-
-	//	Look at target
-	m_View = glm::lookAt(m_Position, m_Target, m_Up);
 
 	if (moved) {
 		RecalculateView();
@@ -205,12 +203,27 @@ bool FirstPersonCamera::OnUpdate(float timeStep) {
 
 	//	Rotation
 	if (movementDelta.x != 0.0f || movementDelta.y != 0.0f) {
-		float pitchDelta = movementDelta.y * m_RotationSpeed;
-		float yawDelta = movementDelta.x * m_RotationSpeed;
+		m_Pitch += movementDelta.y * m_RotationSpeed;
+		m_Yaw += movementDelta.x * m_RotationSpeed;
+		
+		//	Clamp pitch to prevent flipping
+		constexpr float pitchLimit = glm::radians(89.0f);
+		m_Pitch = glm::clamp(m_Pitch, -pitchLimit, pitchLimit);
+		
+		m_ForwardDirection = glm::normalize(glm::vec3(
+			std::cos(m_Pitch) * std::sin(m_Yaw),
+			std::sin(m_Pitch),
+			std::cos(m_Pitch) * std::cos(m_Yaw)
+		));
+		
+		//glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, m_RightDirection),
+		//	glm::angleAxis(-yawDelta, m_Up)));
+		//m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
+		
+		//	TODO: Heh?
+		m_RightDirection = glm::normalize(glm::cross(m_ForwardDirection, glm::vec3(0, 1, 0)));
+		m_Up = glm::normalize(glm::cross(m_RightDirection, m_ForwardDirection));
 
-		glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, m_RightDirection),
-			glm::angleAxis(-yawDelta, m_Up)));
-		m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
 		moved = true;
 	}
 	
