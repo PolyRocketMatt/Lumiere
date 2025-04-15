@@ -4,6 +4,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/quaternion.hpp"
+
+#include <iostream>
+
 namespace Lumiere {
 
 //	
@@ -39,9 +44,7 @@ void BaseCamera::OnResize(uint32_t width, uint32_t height) {
 }
 
 void BaseCamera::RecalculateProjection() {
-	float fov = glm::radians(m_VerticalFov);
-	m_Projection = glm::perspectiveFov(fov, (float)m_ImageWidth, (float)m_ImageHeight, m_NearClip, m_FarClip);
-	
+	m_Projection = glm::perspectiveFov(glm::radians(m_VerticalFov), (float)m_ImageWidth, (float)m_ImageHeight, m_NearClip, m_FarClip);	
 	m_InverseProjection = glm::inverse(m_Projection);
 }
 
@@ -114,12 +117,14 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 	constexpr float pitchLimit = glm::radians(89.0f);
 	m_Pitch = glm::clamp(m_Pitch, -pitchLimit, pitchLimit);
 
-	//	Convert spherical coordinates to cartesian
-	m_Position = glm::vec3(
-		m_Target.x + m_Distance * std::cos(m_Pitch) * std::sin(m_Yaw),
-		m_Target.y + m_Distance * std::sin(m_Pitch),
-		m_Target.z + m_Distance * std::cos(m_Pitch) * std::cos(m_Yaw)
-	);
+	//	Spherical coordinate transformation
+	float x = m_Distance * glm::cos(m_Pitch) * glm::sin(m_Yaw);
+	float y = m_Distance * glm::sin(m_Pitch);
+	float z = m_Distance * glm::cos(m_Pitch) * glm::cos(m_Yaw);
+
+	m_Position = m_Target + glm::vec3(x, y, z);
+	m_ForwardDirection = glm::normalize(m_Target - m_Position);
+	m_RightDirection = glm::cross(m_ForwardDirection, m_Up);
 
 	if (moved) {
 		RecalculateView();
@@ -129,13 +134,24 @@ bool OrbitCamera::OnUpdate(float timeStep) {
 	return moved;
 }
 
+void OrbitCamera::SetPosition(const glm::vec3 position, const glm::vec3 forwardDirection) {
+	m_Target = glm::vec3(0.0f);
+	m_Position = position;
+	m_ForwardDirection = glm::normalize(m_Target - m_Position);
+	m_Pitch = 0.0f;
+	m_Yaw = 0.0f;
+
+	RecalculateView();
+	RecalculateRayDirections();
+}
+
 void OrbitCamera::Rotate(const glm::vec2& delta, float timeStep) {
-	m_Yaw += delta.x * m_RotationSpeed * timeStep;
+	m_Yaw += -delta.x * m_RotationSpeed * timeStep;
 	m_Pitch += delta.y * m_RotationSpeed * timeStep;
 }
 
 void OrbitCamera::Zoom(float delta, float timeStep) {
-	m_Distance *= (1.0f + delta * m_ZoomSpeed * timeStep);
+	m_Distance *= (1.0f + -delta * m_ZoomSpeed * timeStep);
 	m_Distance = glm::max(m_Distance, 0.1f);
 }
 
@@ -206,26 +222,12 @@ bool FirstPersonCamera::OnUpdate(float timeStep) {
 
 	//	Rotation
 	if (movementDelta.x != 0.0f || movementDelta.y != 0.0f) {
-		m_Pitch += movementDelta.y * m_RotationSpeed;
-		m_Yaw += movementDelta.x * m_RotationSpeed;
+		float pitchDelta = movementDelta.y * m_RotationSpeed;
+		float yawDelta = movementDelta.x * m_RotationSpeed;
 		
-		//	Clamp pitch to prevent flipping
-		constexpr float pitchLimit = glm::radians(89.0f);
-		m_Pitch = glm::clamp(m_Pitch, -pitchLimit, pitchLimit);
-		
-		m_ForwardDirection = glm::normalize(glm::vec3(
-			std::cos(m_Pitch) * std::sin(m_Yaw),
-			std::sin(m_Pitch),
-			std::cos(m_Pitch) * std::cos(m_Yaw)
-		));
-		
-		//glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, m_RightDirection),
-		//	glm::angleAxis(-yawDelta, m_Up)));
-		//m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
-		
-		//	TODO: Heh?
-		m_RightDirection = glm::normalize(glm::cross(m_ForwardDirection, glm::vec3(0, 1, 0)));
-		m_Up = glm::normalize(glm::cross(m_RightDirection, m_ForwardDirection));
+		glm::quat q = glm::normalize(glm::cross(glm::angleAxis(-pitchDelta, m_RightDirection), glm::angleAxis(-yawDelta, m_Up)));
+		m_ForwardDirection = glm::rotate(q, m_ForwardDirection);
+		m_RightDirection = glm::cross(m_ForwardDirection, m_Up);
 
 		moved = true;
 	}
@@ -236,6 +238,14 @@ bool FirstPersonCamera::OnUpdate(float timeStep) {
 	}
 
 	return moved;
+}
+
+void FirstPersonCamera::SetPosition(const glm::vec3 position, const glm::vec3 forwardDirection) {
+	m_Position = position;
+	m_ForwardDirection = forwardDirection;
+
+	RecalculateView();
+	RecalculateRayDirections();
 }
 
 }

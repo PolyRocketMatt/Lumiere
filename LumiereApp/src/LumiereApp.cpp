@@ -12,7 +12,7 @@ class BaseLayer : public Lumiere::Layer {
 public:
 	
 	virtual void OnAttach() override {
-		Lumiere::FirstPersonCameraMetadata md = {};
+		Lumiere::OrbitCameraMetadata md = {};
 
 		md.position = glm::vec3(0.0f, 0.0f, 3.0f);
 		md.forwardDirection = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -22,7 +22,13 @@ public:
 		md.nearClip = 0.1f;
 		md.farClip = 100.0f;
 		
-		m_Camera = Lumiere::FirstPersonCamera(md);
+		m_Camera = Lumiere::OrbitCamera(md);
+	}
+
+	virtual void OnUpdate(float ts) override {
+		if (m_Camera.has_value() && m_Camera.value().OnUpdate(ts)) {
+			
+		}
 	}
 
 	virtual void OnUIRender() override {
@@ -31,6 +37,9 @@ public:
 		ImGui::Text("FPS: %.3f", 1000.0f / m_LastRenderTime);
 		if (ImGui::Button("Render"))
 			OnRender();
+		if (ImGui::Button("Reset Camera") && m_Camera.has_value())
+			m_Camera.value().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+				
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
@@ -60,7 +69,7 @@ private:
 	}
 
 protected:
-	std::optional<Lumiere::FirstPersonCamera>	m_Camera;
+	std::optional<Lumiere::OrbitCamera>			m_Camera;
 	Lumiere::Scene								m_Scene;
 	Lumiere::Renderer							m_Renderer;
 	

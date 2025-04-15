@@ -37,13 +37,13 @@ struct CameraMetadata {
 struct OrbitCameraMetadata : public CameraMetadata {
 	glm::vec3	target = glm::vec3(0.0f);
 	float		distance = 5.0f;
-	float		pitch;
-	float		yaw;
-
-	float		sensitivity = 0.002f;
-	float		rotationSpeed = 0.3f;
-	float		zoomSpeed = 0.1f;
-	float		panSpeed = 0.3f;
+	float		pitch = 0.0f;
+	float		yaw = 0.0f;
+	
+	float		sensitivity = 1.0f;
+	float		rotationSpeed = 0.1f;
+	float		zoomSpeed = 1.25f;
+	float		panSpeed = 0.1f;
 };
 
 struct FirstPersonCameraMetadata : public CameraMetadata {
@@ -68,6 +68,8 @@ public:
 	const glm::vec3& GetPosition() const { return m_Position; }
 	const glm::vec3& GetForwardDirection() const { return m_ForwardDirection; }
 	const glm::vec3& GetUp() const { return m_Up; }
+
+	virtual void SetPosition(const glm::vec3 position, const glm::vec3 forwardDirection) = 0;
 
 	const std::vector<glm::vec3>& GetRayDirections() const { return m_RayDirections; }
 protected:
@@ -106,6 +108,8 @@ public:
 	
 	bool OnUpdate(float timeStep) override;
 
+	void SetPosition(const glm::vec3 position, const glm::vec3 forwardDirection) override;
+
 	void Rotate(const glm::vec2& delta, float timeStep);
 	void Zoom(float delta, float timeStep);
 	void Pan(const glm::vec2& delta, float timeStep);
@@ -130,10 +134,9 @@ public:
 
 	bool OnUpdate(float timeStep) override;
 
+	void SetPosition(const glm::vec3 position, const glm::vec3 forwardDirection) override;
+	
 private:
-	float					m_Pitch = 0.0f;
-	float					m_Yaw = 0.0f;
-
 	float					m_Sensitivity;
 	float					m_MovementSpeed;
 	float					m_RotationSpeed;
