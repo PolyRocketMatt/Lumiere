@@ -8,48 +8,48 @@ namespace Lumiere {
 
 struct CameraMetadata {
 	//	--- Geometry & Optics ---
-	glm::vec3	s_Position;
-	glm::vec3	s_ForwardDirection;
-	glm::vec3	s_Up;
+	glm::vec3	position;
+	glm::vec3	forwardDirection;
+	glm::vec3	up;
 
-	float		s_VerticalFov;		
-	float		s_FocalLength;		
-	float		s_Aperture;
-	float		s_FocusDistance;
-	float		s_NearClip;
-	float		s_FarClip;
+	float		verticalFov;		
+	float		focalLength;		
+	float		aperture;
+	float		focusDistance;
+	float		nearClip;
+	float		farClip;
 
 	//	--- Sensor ---
-	float		s_SensorWidth;
-	float		s_SensorHeight;
-	float		s_SensorOpenTime;
-	float		s_SensorCloseTime;
+	float		sensorWidth;
+	float		sensorHeight;
+	float		sensorOpenTime;
+	float		sensorCloseTime;
 
 	//	--- Misc ---
-	uint32_t	s_ImageWidth;
-	uint32_t	s_ImageHeight;
-	float		s_AspectRatio;
+	uint32_t	imageWidth;
+	uint32_t	imageHeight;
+	float		aspectRatio;
 
 	//  --- Real-Time ---
-	bool		s_ContinuousRender;
+	bool		continuousRender;
 };
 
 struct OrbitCameraMetadata : public CameraMetadata {
-	glm::vec3	s_Target;
-	float		s_Distance;
-	float		s_Pitch;
-	float		s_Yaw;
+	glm::vec3	target;
+	float		distance;
+	float		pitch;
+	float		yaw;
 
-	float		s_Sensitivity;
-	float		s_RotationSpeed;
-	float		s_ZoomSpeed;
-	float		s_PanSpeed;
+	float		sensitivity;
+	float		rotationSpeed;
+	float		zoomSpeed;
+	float		panSpeed;
 };
 
 struct FirstPersonCameraMetadata : public CameraMetadata {
-	float		s_Sensitivity;
-	float		s_MovementSpeed;
-	float		s_RotationSpeed;
+	float		sensitivity;
+	float		movementSpeed;
+	float		rotationSpeed;
 };
 
 class BaseCamera {

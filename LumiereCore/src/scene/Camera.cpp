@@ -11,17 +11,17 @@ namespace Lumiere {
 //	BaseCamera
 //
 BaseCamera::BaseCamera(const CameraMetadata& metaData)
-	: m_Position(metaData.s_Position),
-	m_ForwardDirection(metaData.s_ForwardDirection),
-	m_RightDirection(glm::cross(metaData.s_ForwardDirection, metaData.s_Up)),
-	m_Up(metaData.s_Up),
-	m_VerticalFov(metaData.s_VerticalFov),
-	m_NearClip(metaData.s_NearClip),
-	m_FarClip(metaData.s_FarClip),
-	m_ImageWidth(metaData.s_ImageWidth),
-	m_ImageHeight(metaData.s_ImageHeight),
-	m_AspectRatio((float)m_ImageWidth / m_ImageHeight),
-	m_ContinuousRender(metaData.s_ContinuousRender) { }
+	: m_Position(metaData.position),
+	m_ForwardDirection(metaData.forwardDirection),
+	m_RightDirection(glm::cross(metaData.forwardDirection, metaData.up)),
+	m_Up(metaData.up),
+	m_VerticalFov(metaData.verticalFov),
+	m_NearClip(metaData.nearClip),
+	m_FarClip(metaData.farClip),
+	m_ImageWidth(metaData.imageWidth),
+	m_ImageHeight(metaData.imageHeight),
+	m_AspectRatio((float)metaData.imageWidth / metaData.imageHeight),
+	m_ContinuousRender(metaData.continuousRender) { }
 
 void BaseCamera::OnResize(uint32_t width, uint32_t height) {
 	if (width == m_ImageWidth && height == m_ImageHeight)
@@ -71,14 +71,14 @@ void BaseCamera::RecalculateRayDirections() {
 //
 OrbitCamera::OrbitCamera(const OrbitCameraMetadata& metaData)
 	: BaseCamera(metaData),
-	m_Target(metaData.s_Target),
-	m_Distance(metaData.s_Distance),
-	m_Pitch(metaData.s_Pitch),
-	m_Yaw(metaData.s_Yaw),
-	m_Sensitivity(metaData.s_Sensitivity),
-	m_RotationSpeed(metaData.s_RotationSpeed),
-	m_ZoomSpeed(metaData.s_ZoomSpeed),
-	m_PanSpeed(metaData.s_PanSpeed) { }
+	m_Target(metaData.target),
+	m_Distance(metaData.distance),
+	m_Pitch(metaData.pitch),
+	m_Yaw(metaData.yaw),
+	m_Sensitivity(metaData.sensitivity),
+	m_RotationSpeed(metaData.rotationSpeed),
+	m_ZoomSpeed(metaData.zoomSpeed),
+	m_PanSpeed(metaData.panSpeed) { }
 
 bool OrbitCamera::OnUpdate(float timeStep) {
 	glm::vec2 mousePos = Input::GetMousePosition();
@@ -150,9 +150,9 @@ void OrbitCamera::Pan(const glm::vec2& delta, float timeStep) {
 //
 FirstPersonCamera::FirstPersonCamera(const FirstPersonCameraMetadata& metaData)
 	: BaseCamera(metaData),
-	m_Sensitivity(metaData.s_Sensitivity),
-	m_MovementSpeed(metaData.s_MovementSpeed),
-	m_RotationSpeed(metaData.s_RotationSpeed) { }
+	m_Sensitivity(metaData.sensitivity),
+	m_MovementSpeed(metaData.movementSpeed),
+	m_RotationSpeed(metaData.rotationSpeed) { }
 
 bool FirstPersonCamera::OnUpdate(float timeStep) {
 	glm::vec2 mousePos = Input::GetMousePosition();
