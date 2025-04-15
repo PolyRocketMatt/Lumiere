@@ -35,9 +35,11 @@ public:
 		ImGui::Begin("Inspector");
 		ImGui::Text("Render Time: %.3fms", m_LastRenderTime);
 		ImGui::Text("FPS: %.3f", 1000.0f / m_LastRenderTime);
-		if (ImGui::Button("Render"))
+		
+
+		if (ImGui::Button("Render", ImVec2(-1, 0)))
 			OnRender();
-		if (ImGui::Button("Reset Camera") && m_Camera.has_value())
+		if (ImGui::Button("Reset Camera", ImVec2(-1, 0)) && m_Camera.has_value())
 			m_Camera.value().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 				
 		ImGui::End();
