@@ -125,7 +125,8 @@ private:
 };
 
 class FirstPersonCamera : public BaseCamera {
-	FirstPersonCamera(const FirstPersonCameraMetadata& metaData);;
+public:
+	FirstPersonCamera(const FirstPersonCameraMetadata& metaData);
 
 	bool OnUpdate(float timeStep) override;
 
