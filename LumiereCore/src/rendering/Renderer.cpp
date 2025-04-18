@@ -23,7 +23,7 @@ void Renderer::OnResize(uint32_t width, uint32_t height) {
 	m_FinalImageData = new uint32_t[width * height];
 }
 
-void Renderer::Render(RenderMetadata& metaData, BaseCamera& camera, Scene& scene, Integrator& integrator) {
+void Renderer::Render(RenderMetadata& metaData, Camera& camera, Scene& scene, Integrator& integrator) {
 	uint32_t width = m_FinalImage->GetWidth();
 	uint32_t height = m_FinalImage->GetHeight();
 	Ray ray;
