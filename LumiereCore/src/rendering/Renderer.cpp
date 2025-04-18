@@ -47,7 +47,7 @@ void Renderer::Render(RenderMetadata& metaData, BaseCamera& camera, Scene& scene
 	}
 
 	//	(Crude) Monte-Carlo
-	glm::vec3 a((float)metaData.samplesPerPixel);
+	glm::vec3 a{ (float)metaData.samplesPerPixel };
 	glm::vec4 factor(a, 1.0f);
 	for (uint32_t i = 0; i < width * height; i++)
 		m_ImageData[i] /= factor;

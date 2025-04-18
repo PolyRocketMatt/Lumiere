@@ -12,9 +12,9 @@
 namespace Lumiere {
 
 //	
-//	BaseCamera
+//	Camera
 //
-BaseCamera::BaseCamera(const CameraMetadata& metaData)
+Camera::Camera(const CameraMetadata& metaData)
 	: m_Position(metaData.position),
 	m_ForwardDirection(metaData.forwardDirection),
 	m_RightDirection(glm::cross(metaData.forwardDirection, metaData.up)),
@@ -27,11 +27,11 @@ BaseCamera::BaseCamera(const CameraMetadata& metaData)
 	m_AspectRatio((float)metaData.imageWidth / metaData.imageHeight),
 	m_ContinuousRender(metaData.continuousRender) { }
 
-bool BaseCamera::OnUpdate(float timeStep) {
+bool Camera::OnUpdate(float timeStep) {
 	return false;
 }
 
-void BaseCamera::OnResize(uint32_t width, uint32_t height) {
+void Camera::OnResize(uint32_t width, uint32_t height) {
 	if (width == m_ImageWidth && height == m_ImageHeight)
 		return;
 
@@ -43,17 +43,17 @@ void BaseCamera::OnResize(uint32_t width, uint32_t height) {
 	RecalculateRayDirections();
 }
 
-void BaseCamera::RecalculateProjection() {
+void Camera::RecalculateProjection() {
 	m_Projection = glm::perspectiveFov(glm::radians(m_VerticalFov), (float)m_ImageWidth, (float)m_ImageHeight, m_NearClip, m_FarClip);	
 	m_InverseProjection = glm::inverse(m_Projection);
 }
 
-void BaseCamera::RecalculateView() {
+void Camera::RecalculateView() {
 	m_View = glm::lookAt(m_Position, m_Position + m_ForwardDirection, glm::vec3(0, 1, 0));
 	m_InverseView = glm::inverse(m_View);
 }
 
-void BaseCamera::RecalculateRayDirections() {
+void Camera::RecalculateRayDirections() {
 	m_RayDirections.resize(m_ImageWidth * m_ImageHeight);
 
 	for (uint32_t y = 0; y < m_ImageHeight; y++) {
@@ -76,7 +76,7 @@ void BaseCamera::RecalculateRayDirections() {
 //	OrbitCamera
 //
 OrbitCamera::OrbitCamera(const OrbitCameraMetadata& metaData)
-	: BaseCamera(metaData),
+	: Camera(metaData),
 	m_Target(metaData.target),
 	m_Distance(metaData.distance),
 	m_Pitch(metaData.pitch),
@@ -166,7 +166,7 @@ void OrbitCamera::Pan(const glm::vec2& delta, float timeStep) {
 //	FirstPersonCamera
 //
 FirstPersonCamera::FirstPersonCamera(const FirstPersonCameraMetadata& metaData)
-	: BaseCamera(metaData),
+	: Camera(metaData),
 	m_Sensitivity(metaData.sensitivity),
 	m_MovementSpeed(metaData.movementSpeed),
 	m_RotationSpeed(metaData.rotationSpeed) { }

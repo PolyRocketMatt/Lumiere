@@ -20,6 +20,10 @@ glm::vec4 DebugIntegrator::Ld(const Ray& ray) {
 		return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	float t1 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+
+	if (t1 < 0.0f)
+		return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 	glm::vec3 color(0.0f, 0.75f, 1.0f);
 
 	//	t1 is always closest

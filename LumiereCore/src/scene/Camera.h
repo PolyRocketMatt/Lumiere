@@ -52,10 +52,10 @@ struct FirstPersonCameraMetadata : public CameraMetadata {
 	float		rotationSpeed = 0.3f;
 };
 
-class BaseCamera {
+class Camera {
 public:
-	BaseCamera(const CameraMetadata& metaData);
-	~BaseCamera() = default;
+	Camera(const CameraMetadata& metaData);
+	~Camera() = default;
 
 	virtual bool OnUpdate(float timeStep);
 	void OnResize(uint32_t width, uint32_t height);
@@ -102,7 +102,7 @@ protected:
 	std::vector<glm::vec3>	m_RayDirections;
 };
 
-class OrbitCamera : public BaseCamera {
+class OrbitCamera : public Camera {
 public:
 	OrbitCamera(const OrbitCameraMetadata& metaData);
 	
@@ -128,7 +128,7 @@ private:
 	glm::vec2				m_LastMousePosition{ 0.0f, 0.0f };
 };
 
-class FirstPersonCamera : public BaseCamera {
+class FirstPersonCamera : public Camera {
 public:
 	FirstPersonCamera(const FirstPersonCameraMetadata& metaData);
 
