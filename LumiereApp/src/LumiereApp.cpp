@@ -134,22 +134,22 @@ private:
 
 protected:
 	std::optional<Lumiere::OrbitCamera>			m_Camera;
-	Lumiere::PrimitiveScene				m_Scene;
-	Lumiere::DebugIntegrator			m_Integrator;
-	Lumiere::Renderer			m_Renderer;
+	Lumiere::PrimitiveScene					m_Scene;
+	Lumiere::DebugIntegrator				m_Integrator;
+	Lumiere::Renderer					m_Renderer;
 
 	//	Inspector => Inspector
-	float				m_LastRenderTime = 0.0f;
-	bool				m_RealTime = true;
-	bool				m_AllowCameraUpdate = true;
+	float							m_LastRenderTime = 0.0f;
+	bool							m_RealTime = true;
+	bool							m_AllowCameraUpdate = true;
 
 	//	Inspector => Render Settings
-	int			m_SamplesPerPixel = 1;
-	int			m_MaxBounces = 1;
+	int							m_SamplesPerPixel = 1;
+	int							m_MaxBounces = 1;
 
 	//	Viewport
-	uint32_t			m_ViewportWidth;
-	uint32_t			m_ViewportHeight;
+	uint32_t						m_ViewportWidth;
+	uint32_t						m_ViewportHeight;
 };
 
 Lumiere::Application* Lumiere::CreateApplication(int argc, char** argv) {
