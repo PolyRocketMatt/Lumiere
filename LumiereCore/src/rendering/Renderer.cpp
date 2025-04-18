@@ -23,7 +23,10 @@ void Renderer::OnResize(uint32_t width, uint32_t height) {
 	m_FinalImageData = new uint32_t[width * height];
 }
 
-void Renderer::Render(RenderMetadata& metaData, Camera& camera, Scene& scene, Integrator& integrator) {
+void Renderer::Render(const RenderMetadata& metaData, 
+					  const Camera& camera,
+					  const Scene& scene, 
+					  Integrator& integrator) {
 	uint32_t width = m_FinalImage->GetWidth();
 	uint32_t height = m_FinalImage->GetHeight();
 	Ray ray;
@@ -39,7 +42,7 @@ void Renderer::Render(RenderMetadata& metaData, Camera& camera, Scene& scene, In
 				uint32_t index = x + y * width;
 				ray.direction = camera.GetRayDirections()[index];
 
-				glm::vec4 ld = integrator.Ld(ray);
+				glm::vec4 ld = integrator.Ld(ray, scene);
 				ld = glm::clamp(ld, glm::vec4(0.0f), glm::vec4(1.0f));
 				m_ImageData[x + y * width] += ld;
 			}

@@ -16,7 +16,7 @@ public:
 
 	void OnResize(uint32_t width, uint32_t height);
 	
-	virtual void Render(RenderMetadata& metaData, Camera& camera, Scene& scene, Integrator& integrator);
+	virtual void Render(const RenderMetadata& metaData, const Camera& camera, const Scene& scene, Integrator& integrator);
 	virtual void PostProcess();
 
 	std::shared_ptr<Image> GetFinalImage() const { return m_FinalImage; }

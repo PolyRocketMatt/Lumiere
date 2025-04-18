@@ -1,17 +1,21 @@
 #include "app/Application.h"
 #include "app/EntryPoint.h"
+#include "geometry/Primitives.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 #include "rendering/Renderer.h"
 
 #include "Timer.h"
 
+#include <memory>
 #include <optional>
+#include <vector>
 
 class BaseLayer : public Lumiere::Layer {
 public:
 	
 	virtual void OnAttach() override {
+		//	Initialize camera
 		Lumiere::OrbitCameraMetadata md = {};
 
 		md.position = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -23,6 +27,21 @@ public:
 		md.farClip = 100.0f;
 		
 		m_Camera = Lumiere::OrbitCamera(md);
+
+		//	Initialize (test) scene (for now)
+		std::vector<std::shared_ptr<Lumiere::Primitive>> primitives;
+		Lumiere::Sphere sphereA{};
+		sphereA.color = glm::vec3(0.0f, 0.75f, 1.0f);
+		sphereA.radius = 0.5f;
+		primitives.push_back(std::make_shared<Lumiere::Sphere>(sphereA));
+
+		Lumiere::Sphere sphereB{};
+		sphereB.origin = glm::vec3(2.0f, 0.0f, -3.0f);
+		sphereB.radius = 1.5f;
+		sphereB.color = glm::vec3(1.0f, 0.0f, 1.0f);
+		primitives.push_back(std::make_shared<Lumiere::Sphere>(sphereB));
+
+		m_Scene = Lumiere::PrimitiveScene(primitives);
 	}
 
 	virtual void OnUpdate(float ts) override {
@@ -115,7 +134,7 @@ private:
 
 protected:
 	std::optional<Lumiere::OrbitCamera>			m_Camera;
-	Lumiere::Scene								m_Scene;
+	Lumiere::PrimitiveScene						m_Scene;
 	Lumiere::DebugIntegrator					m_Integrator;
 	Lumiere::Renderer							m_Renderer;
 
