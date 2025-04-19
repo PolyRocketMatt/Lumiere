@@ -11,7 +11,7 @@
 
 <h1 align="center">Lumiere</h1>
 
-**Lumiere** is a next-generation, production-ready path tracer engine that allows artists and developers to render scenes in 3D. Through the use of the Vulkan API, Lumiere (current roadmap) offers features unseen by other path tracing systems such as:
+**Lumiere** is a next-generation, wavefront path tracer engine that allows artists and developers to render images from 3D scenes. Through the use of the Vulkan API, Lumiere (current roadmap) offers features unseen by other path tracing systems such as:
 
 - **Light Transport Framework** that is pysically accurate through
   - consistency with the physical properties of both light and materials,
@@ -20,6 +20,13 @@
 - Implementations of **various paradigms** (e.g. Blinn-Phong, MCMC-based methods, etc) through different render paradigms such as
   - Classic Ray Tracing (= *MCRT*)
   - Ray Marching (= *Sphere Tracing* and/or *Segment Tracing*)
+- Support for features such as:
+  - **BVH traversal** for fast ray-geometry intersections.
+  - Different **geometry types** such as primitives, analytical or procedural geometry.
+  - Wide range of **BxDF** implementations.
+  - **Spectral color representation** instead of tristimulus rendering, with support for spectrally-dependent materials and illuminants.
+  - Different **optimized light transport algorithms**.
+  - ...
 - **Integration** with other 3D creation tools such as Blender or Cinema4D.
 
 ### Building
